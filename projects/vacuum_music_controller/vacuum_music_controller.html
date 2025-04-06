@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>真空音乐播放器</title>
+    <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+    <!-- 头部 -->
+    
+    <nav class="nav-bar">
+        <button class="nav-button" id="nav-index">主页</button>
+        <button class="nav-button" id="nav-project">项目</button>
+        <button class="nav-button" id="nav-tools">工具</button>
+    </nav>
+    <!-- 按钮 -->
+    <div>
+        <h1>真空音乐播放器</h1>
+        <image src="../../source/project1.png" class="image-passage" width="400px">
+        <p class="passage">
+            真空音乐播放器是一个基于Python的音乐播放器，支持MP3，具有简单易用的界面和强大的功能。它可以帮助用户轻松地管理和播放他们的音乐库。可以用快捷键来控制音乐的播放，暂停和停止。适合应用多种场景。目前正在高速开发中，有许多功能正在添加中。<br>
+            目前的功能包括：
+        </p>
+        <ul>
+            <li class="passage">播放/暂停音乐(快捷键：ctrl+alt+/)</li>
+            <li class="passage">下一首音乐(快捷键：ctrl+alt+>)</li>
+            <li class="passage">上一首音乐(快捷键：ctrl+alt+<)</li>
+            <li class="passage">显示/隐藏UI(快捷键：ctrl+alt+l)</li>
+            <image src="../../source/task.png" class="image-passage" width="400px">
+            <p>▲如图为本软件极低的后台占用，却拥有强大的功能</p>
+            <p>本软件特色：自动和深色模式或者浅色模式适配，并且使用Windows主题色，让你的程序不在单调</p>
+            <p>快捷键如上图所示，其他操作：<br> 设置音乐文件夹：在config.ini中设置（本程序会自动生成），需要更换路径的时候删除该文件在下一次启动程序时即可触发选择对话框</p>
+            <li class="passage">可能的报错（针对将音乐放在可移动驱动器上的情况）：请确保驱动器已经连接，并且路径正确，如果路径错误请删除config.ini文件，重新启动程序即可</p>
+            <p>欢迎在Github issue上反馈问题和提出新功能建议</p>
+            <br><button class="btn" id="adress_hub">开源仓库地址</button><br>
+            <p>下载链接：</p>
+            <button class="btn" id="download_link_1">Github Pages服务器下载程序[Windows 7/8/10/11 x64]</button>
+            <button class="btn" id="download_link_2">123网盘下载程序[Windows 7/8/10/11 x64]</button>
+    </div>
+    <div class="snackbar" id="snackbar">这是一个提示信息</div>
+    <p class="copyright">© 2025 lazymonkey666</p>
+    <script>
+        // 改进后的波纹效果
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                const rect = btn.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                const btnWidth = btn.offsetWidth;
+                const btnHeight = btn.offsetHeight;
+                const maxDimension = Math.max(btnWidth, btnHeight);
+                const scale = (maxDimension / 20) * 2;
+
+                let ripple = document.createElement('div');
+                ripple.style.cssText = `
+                    position: absolute;
+                    width: 20px;
+                    height: 20px;
+                    background: rgba(100,100,100, 0.3);
+                    border-radius: 50%;
+                    left: ${x}px;
+                    top: ${y}px;
+                    transform: translate(-50%, -50%) scale(0);
+                    transition: transform 0.75s ease-out, opacity 0.75s;
+                    pointer-events: none;
+                `;
+
+                this.appendChild(ripple);
+
+                requestAnimationFrame(() => {
+                    ripple.style.transform = `translate(-50%, -50%) scale(${scale})`;
+                    ripple.style.opacity = '0';
+                });
+
+                setTimeout(() => ripple.remove(), 500);
+            });
+        });
+
+        function showSnackbar(message, duration = 3000) {
+            const snackbar = document.getElementById('snackbar');
+            snackbar.textContent = message;
+            snackbar.classList.add('active');
+            setTimeout(() => snackbar.classList.remove('active'), duration);
+        }
+        const nav_index = document.getElementById('nav-index');
+        nav_index.addEventListener('click', function () {       
+            window.location.href = '../../index.html';
+        });
+        const nav_project = document.getElementById('nav-project');
+        nav_project.addEventListener('click', function () {       
+            window.location.href = '../projects.html';
+        });
+        const nav_tools = document.getElementById('nav-tools');
+        nav_tools.addEventListener('click', function () {
+            window.location.href = '../../tools/tools.html'; 
+        })
+        const github_adress = document.getElementById('adress_hub');
+        github_adress.addEventListener('click', function () {
+            window.location.href = 'https://github.com/lazymonkey666/Vacuum-Music-Controller'; 
+        })
+        const download1 = document.getElementById('download_link_1');
+        download1.addEventListener('click', function () {
+            window.location.href = 'vacuum_music_controller.exe'; 
+        })
+        const download2 = document.getElementById('download_link_2');
+        download2.addEventListener('click', function () {
+            window.location.href = 'https://www.123684.com/s/m1hxTd-h1GO3'; 
+        })
+
+    </script>
+</body>
+</html>

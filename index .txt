@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Android Style UI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background: #f5f5f5;
+            padding: 2rem;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            position: relative; /* 添加relative定位 */
+            padding: 12px 24px;
+            margin: 8px;
+            border: #ccc solid 0.5px;
+            border-radius: 4px;
+            background: #ffffff;
+            color: rgb(0, 0, 0);
+            font-size: 14px;
+            cursor: pointer;
+            overflow: hidden;
+            transition: 0.3s;
+        }
+
+        /* 移除原CSS波纹效果 */
+
+        /* 输入框容器 */
+        .input-group {
+            position: relative;
+            margin: 20px 0;
+            width: 300px;
+        }
+
+        input-group {
+            position: relative;
+            margin: 20px 0;
+            width: 300px;
+        }
+
+        /* 输入框 */
+        .input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-bottom: 2px solid #999;
+            background: transparent;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: #009688;
+        }
+
+        /* 浮动标签 */
+        .input-label {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            transition: 0.3s;
+            pointer-events: none;
+        }
+
+        .input:focus ~ .input-label,
+        .input:not(:placeholder-shown) ~ .input-label {
+            top: -10px;
+            font-size: 12px;
+            color: #009688;
+        }
+
+        /* 下划线动画 */
+        .input-underline {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #009688;
+            transition: 0.3s;
+        }
+
+        .input:focus ~ .input-underline {
+            width: 100%;
+        }
+
+        /* 提示框 */
+        .snackbar {
+            position: fixed;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 14px 24px;
+            border-radius: 30px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: 0.3s;
+        }
+
+        .snackbar.active {
+            bottom: 20px;
+        }
+
+    </style>
+</head>
+<body>
+    <button class="btn">长文本：238402757923479857283475
+		opiuroifj
+		asd
+		asdf
+		asfqwe4tf
+	</button>
+
+    <div class="input-group">
+        <input type="text" class="input" placeholder=" ">
+        <label class="input-label">用户名</label>
+        <span class="input-underline"></span>
+    </div>
+
+    <div class="input-group">
+        <input type="password" class="input" placeholder=" ">
+        <label class="input-label">密码</label>
+        <span class="input-underline"></span>
+    </div>
+
+    <div class="snackbar" id="snackbar">这是一个提示信息</div>
+
+    <script>
+        // 改进后的波纹效果
+        document.querySelectorAll('.btn').forEach(btn => {
+		    btn.addEventListener('click', function(e) {
+		        const rect = btn.getBoundingClientRect();
+		        const x = e.clientX - rect.left;
+		        const y = e.clientY - rect.top;
+			
+		        // 计算需要覆盖整个按钮的最小缩放值
+		        const btnWidth = btn.offsetWidth;
+		        const btnHeight = btn.offsetHeight;
+		        const maxDimension = Math.max(btnWidth, btnHeight);
+		        const scale = (maxDimension / 20) * 2; // 动态计算缩放比例
+			
+		        let ripple = document.createElement('div');
+		        ripple.style.cssText = `
+		            position: absolute;
+		            width: 20px;
+		            height: 20px;
+		            background: rgba(100,100,100, 0.3);
+		            border-radius: 50%;
+		            left: ${x}px;
+		            top: ${y}px;
+		            transform: translate(-50%, -50%) scale(0);
+		            transition: transform 0.75s ease-out, opacity 0.75s;
+		            pointer-events: none;
+		        `;
+			
+		        this.appendChild(ripple);
+			
+		        requestAnimationFrame(() => {
+		            ripple.style.transform = `translate(-50%, -50%) scale(${scale})`;
+		            ripple.style.opacity = '0';
+		        });
+			
+		        setTimeout(() => ripple.remove(), 500);
+		    });
+		});
+
+        // 显示提示框
+        function showSnackbar(message, duration = 3000) {
+            const snackbar = document.getElementById('snackbar');
+            snackbar.textContent = message;
+            snackbar.classList.add('active');
+            setTimeout(() => snackbar.classList.remove('active'), duration);
+        }
+
+        // 修复事件监听（为每个按钮添加点击事件）
+        document.querySelectorAll('.btn').forEach((btn, index) => {
+            btn.addEventListener('click', () => {
+                showSnackbar(index === 0 ? '普通按钮被点击了' : '成功操作');
+            });
+        });
+    </script>
+</body>
+</html>
