@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMLL Core 集成 Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            background: linear-gradient(90deg, #00dbde, #fc00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #aaa;
+            font-size: 1.1rem;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* 专辑信息区域 */
+        .album-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .album-cover {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .album-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .song-info {
+            margin-bottom: 25px;
+        }
+        
+        .song-title {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .artist {
+            font-size: 1.2rem;
+            color: #00dbde;
+            margin-bottom: 5px;
+        }
+        
+        .album-name {
+            color: #aaa;
+            font-size: 1rem;
+        }
+        
+        /* 标签区域 */
+        .tags-section {
+            margin-top: 20px;
+        }
+        
+        .tags-title {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: #fc00ff;
+        }
+        
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .tag {
+            background: rgba(0, 219, 222, 0.15);
+            color: #00dbde;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            border: 1px solid rgba(0, 219, 222, 0.3);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .tag:hover {
+            background: rgba(0, 219, 222, 0.25);
+            transform: translateY(-2px);
+        }
+        
+        /* 歌词区域 */
+        .lyrics-section {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .lyrics-header {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .lyrics-container {
+            height: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #amll-container {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* 播放器控制 */
+        .player-controls {
+            padding: 25px;
+            background: rgba(0, 0, 0, 0.3);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .progress-container {
+            margin-bottom: 20px;
+        }
+        
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #00dbde, #fc00ff);
+            border-radius: 3px;
+            transition: width 0.1s;
+        }
+        
+        .controls-main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .control-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+        
+        .play-btn {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #00dbde, #fc00ff);
+            font-size: 1.5rem;
+        }
+        
+        .play-btn:hover {
+            box-shadow: 0 0 20px rgba(0, 219, 222, 0.5);
+        }
+        
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .volume-slider {
+            flex: 1;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .volume-fill {
+            width: 70%;
+            height: 100%;
+            background: linear-gradient(90deg, #00dbde, #fc00ff);
+            border-radius: 2px;
+        }
+        
+        .volume-percent {
+            width: 40px;
+            text-align: right;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        /* 状态指示器 */
+        .status-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            border-left: 4px solid #00dbde;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Apple Music Like Lyrics</h1>
+            <p class="subtitle">Core 源码集成演示</p>
+        </header>
+        
+        <div class="main-content">
+            <!-- 左侧：专辑信息 -->
+            <div class="album-section">
+                <div class="album-cover">
+                    <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" 
+                         alt="专辑封面" id="album-image">
+                </div>
+                
+                <div class="song-info">
+                    <h2 class="song-title" id="song-title">Midnight Dreams</h2>
+                    <p class="artist" id="artist">Synthwave Collective</p>
+                    <p class="album-name" id="album-name">专辑: Neon Nights (2023)</p>
+                </div>
+                
+                <div class="tags-section">
+                    <h3 class="tags-title">专辑标签</h3>
+                    <div class="tags-container">
+                        <div class="tag" data-tag="synthwave">Synthwave</div>
+                        <div class="tag" data-tag="retro">Retro</div>
+                        <div class="tag" data-tag="electronic">电子音乐</div>
+                        <div class="tag" data-tag="chill">舒缓</div>
+                        <div class="tag" data-tag="2023">2023发行</div>
+                        <div class="tag" data-tag="instrumental">纯音乐版</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 右侧：歌词区域 -->
+            <div class="lyrics-section">
+                <div class="lyrics-header">
+                    <h2>实时歌词</h2>
+                </div>
+                <div class="lyrics-container">
+                    <!-- AMLL 播放器将在这里渲染 -->
+                    <div id="amll-container"></div>
+                </div>
+                
+                <div class="player-controls">
+                    <div class="progress-container">
+                        <div class="time-display">
+                            <span id="current-time">0:00</span>
+                            <span id="total-time">0:00</span>
+                        </div>
+                        <div class="progress-bar" id="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="controls-main">
+                        <button class="control-btn" id="prev-btn" title="上一首">
+                            <i class="fas fa-backward"></i>
+                        </button>
+                        <button class="control-btn play-btn" id="play-btn" title="播放/暂停">
+                            <i class="fas fa-play" id="play-icon"></i>
+                        </button>
+                        <button class="control-btn" id="next-btn" title="下一首">
+                            <i class="fas fa-forward"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="volume-control">
+                        <i class="fas fa-volume-up"></i>
+                        <div class="volume-slider" id="volume-slider">
+                            <div class="volume-fill" id="volume-fill"></div>
+                        </div>
+                        <div class="volume-percent" id="volume-percent">70%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>AMLL Core 集成演示 | 使用 Apple Music Like Lyrics Core 源码构建</p>
+        </footer>
+        
+        <!-- 状态指示器 -->
+        <div class="status-indicator" id="status-indicator">
+            歌词播放器已就绪
+        </div>
+    </div>
+
+    <!-- 音频元素 -->
+    <audio id="audio-player" preload="metadata">
+        <!-- 替换为你的 test.mp3 路径 -->
+        <source src="test.mp3" type="audio/mpeg">
+        您的浏览器不支持音频元素。
+    </audio>
+
+    <!-- 引入Font Awesome图标 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+    <!-- AMLL Core 集成脚本 -->
+    <script type="module">
+        // ======================
+        // AMLL Core 集成部分
+        // ======================
+        
+        // 注意：这里假设你已经将 AMLL Core 源码放在以下路径
+        // 根据你的实际文件结构调整导入路径
+        import { LyricPlayer } from './core/src/index.js';
+        // 或者如果你的 core 源码有不同的结构：
+        // import { LyricPlayer } from './path/to/your/amll-core.js';
+        
+        // AMLL 需要的歌词格式示例
+        const amllLyrics = [
+            {
+                time: 0,
+                text: "[音乐开始]",
+                translation: "[Music Starts]"
+            },
+            {
+                time: 5.2,
+                text: "午夜的城市闪烁着霓虹",
+                translation: "The midnight city shimmers with neon"
+            },
+            {
+                time: 10.5,
+                text: "我们追逐着消失的梦境",
+                translation: "We chase the vanishing dreams"
+            },
+            {
+                time: 16.8,
+                text: "在无尽的街道上徘徊",
+                translation: "Wandering on endless streets"
+            },
+            {
+                time: 22.3,
+                text: "寻找着失落的光影",
+                translation: "Searching for lost light and shadow"
+            },
+            {
+                time: 28.7,
+                text: "[合成器间奏]",
+                translation: "[Synth Interlude]"
+            },
+            {
+                time: 35.4,
+                text: "时间在指尖缓缓流淌",
+                translation: "Time flows slowly through fingertips"
+            },
+            {
+                time: 41.9,
+                text: "记忆如星尘般散落",
+                translation: "Memories scatter like stardust"
+            },
+            {
+                time: 48.2,
+                text: "在这永恒的夜晚",
+                translation: "In this eternal night"
+            },
+            {
+                time: 54.6,
+                text: "我们找到了彼此的回声",
+                translation: "We found each other's echoes"
+            },
+            {
+                time: 60.8,
+                text: "[音乐渐弱]",
+                translation: "[Music Fades Out]"
+            }
+        ];
+        
+        // 初始化 AMLL 歌词播放器
+        class AMLLIntegration {
+            constructor() {
+                this.lyricPlayer = null;
+                this.isInitialized = false;
+                this.currentLyricIndex = 0;
+                
+                // DOM 元素
+                this.domElements = {
+                    container: document.getElementById('amll-container'),
+                    audioPlayer: document.getElementById('audio-player'),
+                    playBtn: document.getElementById('play-btn'),
+                    playIcon: document.getElementById('play-icon'),
+                    progressBar: document.getElementById('progress-bar'),
+                    progressFill: document.getElementById('progress-fill'),
+                    currentTime: document.getElementById('current-time'),
+                    totalTime: document.getElementById('total-time'),
+                    volumeSlider: document.getElementById('volume-slider'),
+                    volumeFill: document.getElementById('volume-fill'),
+                    volumePercent: document.getElementById('volume-percent'),
+                    statusIndicator: document.getElementById('status-indicator')
+                };
+                
+                // 音频状态
+                this.audioState = {
+                    isPlaying: false,
+                    volume: 0.7,
+                    duration: 0,
+                    currentTime: 0
+                };
+                
+                this.init();
+            }
+            
+            async init() {
+                try {
+                    // 1. 初始化 AMLL 歌词播放器
+                    this.lyricPlayer = new LyricPlayer();
+                    
+                    // 2. 将播放器添加到容器
+                    this.domElements.container.appendChild(this.lyricPlayer.getElement());
+                    
+                    // 3. 配置播放器样式
+                    this.configurePlayerStyle();
+                    
+                    // 4. 设置歌词数据
+                    this.setLyrics(amllLyrics);
+                    
+                    // 5. 设置事件监听器
+                    this.setupEventListeners();
+                    
+                    // 6. 初始化音频
+                    this.initAudio();
+                    
+                    this.isInitialized = true;
+                    this.updateStatus('AMLL 歌词播放器初始化成功', 'success');
+                    
+                    console.log('AMLL Core 集成完成！');
+                    
+                } catch (error) {
+                    console.error('AMLL 初始化失败:', error);
+                    this.updateStatus('AMLL 初始化失败: ' + error.message, 'error');
+                    
+                    // 如果 AMLL 加载失败，显示备用界面
+                    this.showFallbackInterface();
+                }
+            }
+            
+            configurePlayerStyle() {
+                // 设置 AMLL 播放器样式
+                const playerElement = this.lyricPlayer.getElement();
+                
+                // 添加自定义 CSS 类
+                playerElement.classList.add('amll-player');
+                
+                // 你可以通过 CSS 变量自定义 AMLL 的样式
+                // 这些变量需要根据 AMLL Core 的实际支持来调整
+                document.documentElement.style.setProperty('--amll-primary-color', '#00dbde');
+                document.documentElement.style.setProperty('--amll-secondary-color', '#fc00ff');
+                document.documentElement.style.setProperty('--amll-font-size', '1.4rem');
+            }
+            
+            setLyrics(lyricsData) {
+                if (!this.lyricPlayer || !lyricsData) return;
+                
+                // 转换歌词格式为 AMLL 需要的格式
+                const formattedLyrics = lyricsData.map(line => ({
+                    startTime: line.time,
+                    words: [
+                        {
+                            word: line.text,
+                            startTime: line.time,
+                            endTime: line.time + 4 // 假设每行持续4秒
+                        }
+                    ],
+                    translation: line.translation || ''
+                }));
+                
+                // 设置歌词
+                this.lyricPlayer.setLyricLines(formattedLyrics);
+                
+                // 设置当前时间
+                this.lyricPlayer.setCurrentTime(0);
+                
+                this.updateStatus(`已加载 ${formattedLyrics.length} 行歌词`, 'info');
+            }
+            
+            setupEventListeners() {
+                // 播放/暂停按钮
+                this.domElements.playBtn.addEventListener('click', () => this.togglePlay());
+                
+                // 进度条点击
+                this.domElements.progressBar.addEventListener('click', (e) => this.seekAudio(e));
+                
+                // 音量控制
+                this.domElements.volumeSlider.addEventListener('click', (e) => this.setVolume(e));
+                
+                // 音频事件监听
+                this.domElements.audioPlayer.addEventListener('timeupdate', () => this.updateProgress());
+                this.domElements.audioPlayer.addEventListener('loadedmetadata', () => this.onAudioLoaded());
+                this.domElements.audioPlayer.addEventListener('ended', () => this.onAudioEnded());
+                this.domElements.audioPlayer.addEventListener('play', () => this.onAudioPlay());
+                this.domElements.audioPlayer.addEventListener('pause', () => this.onAudioPause());
+                
+                // 标签点击事件
+                document.querySelectorAll('.tag').forEach(tag => {
+                    tag.addEventListener('click', (e) => this.onTagClick(e));
+                });
+                
+                // 键盘快捷键
+                document.addEventListener('keydown', (e) => this.handleKeyboardShortcuts(e));
+            }
+            
+            initAudio() {
+                // 设置初始音量
+                this.domElements.audioPlayer.volume = this.audioState.volume;
+                this.updateVolumeDisplay();
+                
+                // 尝试预加载音频
+                this.domElements.audioPlayer.load();
+            }
+            
+            // ======================
+            // 音频控制方法
+            // ======================
+            
+            togglePlay() {
+                if (this.audioState.isPlaying) {
+                    this.pauseAudio();
+                } else {
+                    this.playAudio();
+                }
+            }
+            
+            async playAudio() {
+                try {
+                    await this.domElements.audioPlayer.play();
+                    this.audioState.isPlaying = true;
+                    this.domElements.playIcon.classList.remove('fa-play');
+                    this.domElements.playIcon.classList.add('fa-pause');
+                    this.updateStatus('播放中', 'success');
+                } catch (error) {
+                    console.error('播放失败:', error);
+                    this.updateStatus('播放失败: ' + error.message, 'error');
+                }
+            }
+            
+            pauseAudio() {
+                this.domElements.audioPlayer.pause();
+                this.audioState.isPlaying = false;
+                this.domElements.playIcon.classList.remove('fa-pause');
+                this.domElements.playIcon.classList.add('fa-play');
+                this.updateStatus('已暂停', 'info');
+            }
+            
+            seekAudio(event) {
+                const progressBar = this.domElements.progressBar;
+                const clickPosition = event.offsetX;
+                const barWidth = progressBar.clientWidth;
+                const percentage = clickPosition / barWidth;
+                
+                const newTime = percentage * this.audioState.duration;
+                this.domElements.audioPlayer.currentTime = newTime;
+                
+                // 更新歌词时间
+                if (this.lyricPlayer) {
+                    this.lyricPlayer.setCurrentTime(newTime);
+                }
+            }
+            
+            setVolume(event) {
+                const volumeSlider = this.domElements.volumeSlider;
+                const clickPosition = event.offsetX;
+                const barWidth = volumeSlider.clientWidth;
+                const volume = Math.min(1, Math.max(0, clickPosition / barWidth));
+                
+                this.audioState.volume = volume;
+                this.domElements.audioPlayer.volume = volume;
+                this.updateVolumeDisplay();
+            }
+            
+            updateProgress() {
+                if (!this.lyricPlayer) return;
+                
+                const audio = this.domElements.audioPlayer;
+                const currentTime = audio.currentTime;
+                
+                // 更新进度条
+                const progress = (currentTime / this.audioState.duration) * 100;
+                this.domElements.progressFill.style.width = `${progress}%`;
+                
+                // 更新时间显示
+                this.domElements.currentTime.textContent = this.formatTime(currentTime);
+                
+                // 更新歌词播放器
+                this.lyricPlayer.setCurrentTime(currentTime);
+                
+                // 触发歌词更新
+                this.lyricPlayer.update(currentTime);
+            }
+            
+            updateVolumeDisplay() {
+                const volumePercent = Math.round(this.audioState.volume * 100);
+                this.domElements.volumeFill.style.width = `${volumePercent}%`;
+                this.domElements.volumePercent.textContent = `${volumePercent}%`;
+            }
+            
+            onAudioLoaded() {
+                this.audioState.duration = this.domElements.audioPlayer.duration;
+                this.domElements.totalTime.textContent = this.formatTime(this.audioState.duration);
+                this.updateStatus(`音频已加载 (${this.formatTime(this.audioState.duration)})`, 'success');
+            }
+            
+            onAudioEnded() {
+                this.audioState.isPlaying = false;
+                this.domElements.playIcon.classList.remove('fa-pause');
+                this.domElements.playIcon.classList.add('fa-play');
+                this.updateStatus('播放结束', 'info');
+            }
+            
+            onAudioPlay() {
+                this.audioState.isPlaying = true;
+            }
+            
+            onAudioPause() {
+                this.audioState.isPlaying = false;
+            }
+            
+            // ======================
+            // 工具方法
+            // ======================
+            
+            formatTime(seconds) {
+                const mins = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+            }
+            
+            updateStatus(message, type = 'info') {
+                const indicator = this.domElements.statusIndicator;
+                indicator.textContent = message;
+                
+                // 根据类型设置颜色
+                const colors = {
+                    success: '#00dbde',
+                    error: '#ff4757',
+                    info: '#fc00ff'
+                };
+                
+                indicator.style.borderLeftColor = colors[type] || colors.info;
+                
+                // 3秒后自动隐藏
+                clearTimeout(this.statusTimeout);
+                this.statusTimeout = setTimeout(() => {
+                    indicator.textContent = '就绪';
+                    indicator.style.borderLeftColor = colors.info;
+                }, 3000);
+            }
+            
+            onTagClick(event) {
+                const tag = event.target;
+                const tagName = tag.textContent;
+                this.updateStatus(`选择了标签: ${tagName}`, 'info');
+                
+                // 这里可以添加标签点击后的逻辑
+                tag.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    tag.style.transform = '';
+                }, 200);
+            }
+            
+            handleKeyboardShortcuts(event) {
+                switch(event.code) {
+                    case 'Space':
+                        event.preventDefault();
+                        this.togglePlay();
+                        break;
+                    case 'ArrowLeft':
+                        event.preventDefault();
+                        this.domElements.audioPlayer.currentTime -= 5;
+                        break;
+                    case 'ArrowRight':
+                        event.preventDefault();
+                        this.domElements.audioPlayer.currentTime += 5;
+                        break;
+                    case 'ArrowUp':
+                        event.preventDefault();
+                        this.audioState.volume = Math.min(1, this.audioState.volume + 0.1);
+                        this.domElements.audioPlayer.volume = this.audioState.volume;
+                        this.updateVolumeDisplay();
+                        break;
+                    case 'ArrowDown':
+                        event.preventDefault();
+                        this.audioState.volume = Math.max(0, this.audioState.volume - 0.1);
+                        this.domElements.audioPlayer.volume = this.audioState.volume;
+                        this.updateVolumeDisplay();
+                        break;
+                    case 'KeyM':
+                        event.preventDefault();
+                        this.audioState.volume = this.audioState.volume > 0 ? 0 : 0.7;
+                        this.domElements.audioPlayer.volume = this.audioState.volume;
+                        this.updateVolumeDisplay();
+                        break;
+                }
+            }
+            
+            showFallbackInterface() {
+                // 如果 AMLL 加载失败，显示备用歌词界面
+                this.domElements.container.innerHTML = `
+                    <div class="fallback-lyrics">
+                        <h3>AMLL 加载失败，显示备用歌词</h3>
+                        <div id="fallback-lyrics-container"></div>
+                    </div>
+                `;
+                
+                // 简单实现歌词显示
+                const container = document.getElementById('fallback-lyrics-container');
+                amllLyrics.forEach(line => {
+                    const lineEl = document.createElement('div');
+                    lineEl.className = 'fallback-lyric-line';
+                    lineEl.textContent = line.text;
+                    lineEl.style.margin = '10px 0';
+                    lineEl.style.opacity = '0.5';
+                    container.appendChild(lineEl);
+                });
+            }
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 初始化 AMLL 集成
+            const amllIntegration = new AMLLIntegration();
+            
+            // 全局访问（用于调试）
+            window.amllIntegration = amllIntegration;
+            
+            console.log('页面已加载，AMLL 集成已启动');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人主页</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <!-- 头部 -->
+    
+    <nav class="nav-bar">
+        <button class="nav-button" id="nav-index">主页</button>
+        <button class="nav-button" id="nav-project">项目</button>
+        <button class="nav-button" id="nav-tools">工具</button>
+    </nav>
+    <div class="container">
+        <h1>小工具</h1>
+        <p>欢迎来到我的工具网站！</p>
+        <div class="button-container">
+            <button id="Project1" class="btn">音乐展示</button>
+        </div>
+    <script>
+        // 改进后的波纹效果
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                const rect = btn.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                const btnWidth = btn.offsetWidth;
+                const btnHeight = btn.offsetHeight;
+                const maxDimension = Math.max(btnWidth, btnHeight);
+                const scale = (maxDimension / 20) * 2;
+
+                let ripple = document.createElement('div');
+                ripple.style.cssText = `
+                    position: absolute;
+                    width: 20px;
+                    height: 20px;
+                    background: rgba(100,100,100, 0.3);
+                    border-radius: 50%;
+                    left: ${x}px;
+                    top: ${y}px;
+                    transform: translate(-50%, -50%) scale(0);
+                    transition: transform 0.75s ease-out, opacity 0.75s;
+                    pointer-events: none;
+                `;
+
+                this.appendChild(ripple);
+
+                requestAnimationFrame(() => {
+                    ripple.style.transform = `translate(-50%, -50%) scale(${scale})`;
+                    ripple.style.opacity = '0';
+                });
+
+                setTimeout(() => ripple.remove(), 500);
+            });
+        });
+
+        // 显示提示框
+        function showSnackbar(message, duration = 3000) {
+            const snackbar = document.getElementById('snackbar');
+            snackbar.textContent = message;
+            snackbar.classList.add('active');
+            setTimeout(() => snackbar.classList.remove('active'), duration);
+        }
+        const button = document.getElementById('Project1');
+        button.addEventListener('click', function () {
+            window.open('music_show.html', );
+        });
+        const nav_index = document.getElementById('nav-index');
+        nav_index.addEventListener('click', function () {       
+            window.location.href = '../index.html';
+        });
+        const nav_project = document.getElementById('nav-project');
+        nav_project.addEventListener('click', function () {       
+            window.location.href = '../projects/projects.html';
+        });
+        const nav_tools = document.getElementById('nav-tools');
+        nav_tools.addEventListener('click', function () {
+            window.location.href = '../tools/tools.html'; 
+        })
+
+
+    </script>
+</body>
+</html>
